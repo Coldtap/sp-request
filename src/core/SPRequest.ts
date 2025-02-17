@@ -1,70 +1,90 @@
 import * as util from 'util';
 import * as spauth from 'node-sp-auth';
 import * as crypto from 'crypto';
-import * as https from 'https';
-import request from 'got';
+//import * as https from 'https';
+import request, { KyResponse } from 'ky';
 
 import { Cache } from './utils/Cache';
-import { ISPRequest, ISPRequestOptions, GotRequestMethod } from './types';
+import { ISPRequest, ISPRequestOptions, SPRequestMethod } from './types';
 
 export const requestDigestCache: Cache = new Cache();
 
-const isUrlHttps: any = (url: string): boolean => {
-  return url.split('://')[0].toLowerCase() === 'https';
-};
+// const isUrlHttps: any = (url: string): boolean => {
+//   return url.split('://')[0].toLowerCase() === 'https';
+// };
 
 export function create(credentials?: spauth.IAuthOptions): ISPRequest {
+  // const agent: https.Agent = new https.Agent({
+  //   rejectUnauthorized: false,
+  //   keepAlive: true,
+  //   keepAliveMsecs: 10000
+  // });
 
-  const agent: https.Agent = new https.Agent({
-    rejectUnauthorized: false,
-    keepAlive: true,
-    keepAliveMsecs: 10000
-  });
-
-  const coreRequest = async (options: ISPRequestOptions): Promise<any> => {
+  const coreRequest = async ({ url, ...options }: ISPRequestOptions): Promise<KyResponse<any>> => {
     options.throwHttpErrors = true;
     options.headers = options.headers || {};
 
-    options.headers = Object.assign({
-      'Accept': 'application/json;odata=verbose',
-      'Content-Type': 'application/json;odata=verbose'
-    }, options.headers);
+    options.headers = Object.assign(
+      {
+        Accept: 'application/json;odata=verbose',
+        'Content-Type': 'application/json;odata=verbose',
+      },
+      options.headers
+    );
 
     const additionalHeadersStr: string = process.env['_sp_request_headers'];
     if (additionalHeadersStr) {
       Object.assign(options.headers, JSON.parse(additionalHeadersStr));
     }
+    options = Object.assign<ISPRequestOptions, ISPRequestOptions>(
+      {
+        responseType: 'json',
+        resolveBodyOnly: false,
+        // rejectUnauthorized: false,
+        // retry: 0
+      },
+      options
+    );
 
-    options = Object.assign<ISPRequestOptions, ISPRequestOptions>({
-      responseType: 'json',
-      resolveBodyOnly: false,
-      rejectUnauthorized: false,
-      retry: 0,
-      agent: isUrlHttps(options.url) ? agent : undefined
-    }, options);
-
-    const data = await spauth.getAuth(options.url.toString(), credentials);
+    const data = await spauth.getAuth(url, credentials);
     Object.assign(options.headers, data.headers);
     Object.assign(options, data.options);
 
-    if (options.responseType === 'json') {
-      options.json = options.body as any;
-      options.body = undefined;
-    }
+    return await request(url, options);
+    // if (options.resolveBodyOnly) {
+    //   if (options.responseType === 'json') {
+    //     return await request(url, options).json();
+    //     // options.json = options.body as any;
+    //     // options.body = undefined;
+    //   }
+    //   else if (options.responseType === 'buffer') {
+    //     return await request(url, options).arrayBuffer();
+    //   }
 
-    return await request(options as any);
+    //   return await request(url, options).text();
+    // } else {
+    //   const kyResponse = await request(url, options);
+    //   return {
+    //     body: options.responseType === 'json'
+    //       ? await kyResponse.json()
+    //       : options.responseType === 'buffer'
+    //         ? await kyResponse.arrayBuffer()
+    //         : await kyResponse.text(),
+    //     ...kyResponse
+    //   };
+    // }
   };
 
-  const spRequestFunc: GotRequestMethod = ((url: string | ISPRequestOptions, options?: ISPRequestOptions) => {
+  const spRequestFunc: SPRequestMethod = ((url: string | ISPRequestOptions, options?: ISPRequestOptions) => {
     if (typeof url === 'string') {
       options = {
         url,
-        ...options
+        ...options,
       };
     } else {
       options = {
         ...url,
-        ...options
+        ...options,
       };
     }
 
@@ -73,11 +93,14 @@ export function create(credentials?: spauth.IAuthOptions): ISPRequest {
     }
 
     return coreRequest(options);
-  }) as GotRequestMethod;
+  }) as SPRequestMethod;
 
   (spRequestFunc as ISPRequest).requestDigest = async (siteUrl: string): Promise<string> => {
     const url: string = siteUrl.replace(/\/$/, '');
-    const cacheKey: string = crypto.createHash('md5').update(util.format('%s@%s', url, JSON.stringify(credentials))).digest('hex');
+    const cacheKey: string = crypto
+      .createHash('md5')
+      .update(util.format('%s@%s', url, JSON.stringify(credentials)))
+      .digest('hex');
     const cachedDigest: string = requestDigestCache.get<string>(cacheKey);
 
     if (cachedDigest) {
@@ -85,14 +108,18 @@ export function create(credentials?: spauth.IAuthOptions): ISPRequest {
     }
 
     const response = await (spRequestFunc as ISPRequest).post<any>(`${url}/_api/contextinfo`, { responseType: 'json' });
-    const digest: string = response.body.d.GetContextWebInformation.FormDigestValue;
-    const timeout: number = parseInt(response.body.d.GetContextWebInformation.FormDigestTimeoutSeconds, 10);
+    const data = await response.json();
+    const digest: string = data.d.GetContextWebInformation.FormDigestValue;
+    const timeout: number = parseInt(data.d.GetContextWebInformation.FormDigestTimeoutSeconds, 10);
     requestDigestCache.set(cacheKey, digest, timeout - 30);
     return digest;
   };
 
   ['get', 'post', 'put', 'patch', 'head', 'delete'].forEach((method: string) => {
-    spRequestFunc[method] = (url: string | ISPRequestOptions, options?: ISPRequestOptions): ReturnType<typeof spRequestFunc> => spRequestFunc(url as any, { ...options, method } as any);
+    spRequestFunc[method] = (
+      url: string | ISPRequestOptions,
+      options?: ISPRequestOptions
+    ): ReturnType<typeof spRequestFunc> => spRequestFunc(url as any, { ...options, method } as any);
   });
 
   return spRequestFunc as ISPRequest;

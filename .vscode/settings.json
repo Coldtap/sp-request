@@ -18,7 +18,6 @@ Happy linting! 💖
     "editor.tabSize": 2,
     "files.autoSave": "onFocusChange",
     "files.exclude": {
-        "node_modules/": true,
         "**/*.js": {
             "when": "$(basename).ts"
         },

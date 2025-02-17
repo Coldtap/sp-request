@@ -11,33 +11,31 @@ const spUrl = 'https://your_sp_api_endpoint';
 const creds: spauth.IOnpremiseUserCredentials = {
   username: 'user',
   password: 'pass',
-  domain: 'sp'
+  domain: 'sp',
 };
 
 const defaultAcceptHeader = 'application/json;odata=verbose';
 
 describe('sp-request: direct call tests - sprequest(...)', () => {
-
   let requestPromiseStub: SinonStub;
   let sprequest: any;
 
   beforeEach(() => {
-
     mockery.enable({
       warnOnReplace: false,
       warnOnUnregistered: false,
-      useCleanCache: true
+      useCleanCache: true,
     });
 
     const requestDeferred = Promise.resolve({ statusCode: 200 });
 
     requestPromiseStub = sinon.stub().returns(requestDeferred);
 
-    mockery.registerMock('got', { default: requestPromiseStub });
+    mockery.registerMock('ky', { default: requestPromiseStub });
     mockery.registerMock('node-sp-auth', {
       getAuth: () => {
         return Promise.resolve({});
-      }
+      },
     });
 
     sprequest = require('./../../src/core/SPRequest');
@@ -48,7 +46,6 @@ describe('sp-request: direct call tests - sprequest(...)', () => {
   });
 
   it('should call got', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
     request(spUrl)
@@ -63,14 +60,12 @@ describe('sp-request: direct call tests - sprequest(...)', () => {
   });
 
   it('should call got with "GET" method when provided directly', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
     request(spUrl, {
-      method: 'GET'
+      method: 'GET',
     })
       .then(() => {
-
         const call: SinonSpyCall = requestPromiseStub.getCall(0);
         const options: ISPRequestOptions = call.args[0];
 
@@ -85,14 +80,12 @@ describe('sp-request: direct call tests - sprequest(...)', () => {
   });
 
   it('should call got with "POST" method when provided directly', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
     request(spUrl, {
-      method: 'POST'
+      method: 'POST',
     })
       .then(() => {
-
         expect(requestPromiseStub.called).is.true;
 
         done();
@@ -102,14 +95,11 @@ describe('sp-request: direct call tests - sprequest(...)', () => {
       });
   });
 
-
   it('should set default accept header', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
     request(spUrl)
       .then(() => {
-
         const call: SinonSpyCall = requestPromiseStub.getCall(0);
         const options: ISPRequestOptions = call.args[0];
 
@@ -123,7 +113,6 @@ describe('sp-request: direct call tests - sprequest(...)', () => {
   });
 
   it('should call got with method "GET" when called with string param', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
     request(spUrl)
@@ -142,11 +131,10 @@ describe('sp-request: direct call tests - sprequest(...)', () => {
   });
 
   it('should call got with method "GET" when called with options object', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
     request({
-      url: spUrl
+      url: spUrl,
     })
       .then(() => {
         const call: SinonSpyCall = requestPromiseStub.getCall(0);
@@ -163,7 +151,6 @@ describe('sp-request: direct call tests - sprequest(...)', () => {
   });
 
   it('should call got with method "GET" when called with string as first param and object as second', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
     request(spUrl, {})
@@ -183,30 +170,28 @@ describe('sp-request: direct call tests - sprequest(...)', () => {
 });
 
 describe('sp-request: helper call tests - sprequest.get(...)', () => {
-
   let requestPromiseStub: SinonStub;
   let sprequest: any;
 
   beforeEach(() => {
-
     mockery.enable({
       warnOnReplace: false,
       warnOnUnregistered: false,
-      useCleanCache: true
+      useCleanCache: true,
     });
 
     const requestDeferred = Promise.resolve({ statusCode: 200 });
 
     requestPromiseStub = sinon.stub().returns(requestDeferred);
 
-    mockery.registerMock('got', { default: requestPromiseStub });
+    mockery.registerMock('ky', { default: requestPromiseStub });
 
     sprequest = require('./../../src/core/SPRequest');
 
     mockery.registerMock('node-sp-auth', {
       getAuth: () => {
         return Promise.resolve({});
-      }
+      },
     });
   });
 
@@ -215,10 +200,10 @@ describe('sp-request: helper call tests - sprequest.get(...)', () => {
   });
 
   it('should call got with method "GET" when called with string param', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
-    request.get(spUrl)
+    request
+      .get(spUrl)
       .then(() => {
         const call: SinonSpyCall = requestPromiseStub.getCall(0);
         const options: ISPRequestOptions = call.args[0];
@@ -234,12 +219,12 @@ describe('sp-request: helper call tests - sprequest.get(...)', () => {
   });
 
   it('should call got with method "GET" when called with options object', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
-    request.get({
-      url: spUrl
-    })
+    request
+      .get({
+        url: spUrl,
+      })
       .then(() => {
         const call: SinonSpyCall = requestPromiseStub.getCall(0);
         const options: ISPRequestOptions = call.args[0];
@@ -255,10 +240,10 @@ describe('sp-request: helper call tests - sprequest.get(...)', () => {
   });
 
   it('should call got with method "GET" when called with string as first param and object as second', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
-    request.get(spUrl, {})
+    request
+      .get(spUrl, {})
       .then(() => {
         const call: SinonSpyCall = requestPromiseStub.getCall(0);
         const options: ISPRequestOptions = call.args[0];
@@ -272,34 +257,31 @@ describe('sp-request: helper call tests - sprequest.get(...)', () => {
         done(err);
       });
   });
-
 });
 
 describe('sp-request: helper call tests - sprequest.post(...)', () => {
-
   let requestPromiseStub: SinonStub;
   let sprequest: any;
 
   beforeEach(() => {
-
     mockery.enable({
       warnOnReplace: false,
       warnOnUnregistered: false,
-      useCleanCache: true
+      useCleanCache: true,
     });
 
     const requestDeferred = Promise.resolve({ statusCode: 200 });
 
     requestPromiseStub = sinon.stub().returns(requestDeferred);
 
-    mockery.registerMock('got', { default: requestPromiseStub });
+    mockery.registerMock('ky', { default: requestPromiseStub });
 
     sprequest = require('./../../src/core/SPRequest');
 
     mockery.registerMock('node-sp-auth', {
       getAuth: () => {
         return Promise.resolve({});
-      }
+      },
     });
   });
 
@@ -308,10 +290,10 @@ describe('sp-request: helper call tests - sprequest.post(...)', () => {
   });
 
   it('should call got with method "POST" when called with string param', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
-    request.post(spUrl)
+    request
+      .post(spUrl)
       .then(() => {
         const call: SinonSpyCall = requestPromiseStub.getCall(0);
         const options: ISPRequestOptions = call.args[0];
@@ -327,12 +309,12 @@ describe('sp-request: helper call tests - sprequest.post(...)', () => {
   });
 
   it('should call got with method "POST" when called with options object', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
-    request.post({
-      url: spUrl
-    })
+    request
+      .post({
+        url: spUrl,
+      })
       .then(() => {
         const call: SinonSpyCall = requestPromiseStub.getCall(0);
         const options: ISPRequestOptions = call.args[0];
@@ -348,10 +330,10 @@ describe('sp-request: helper call tests - sprequest.post(...)', () => {
   });
 
   it('should call got with method "GET" when called with string as first param and object as second', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
-    request.post(spUrl, {})
+    request
+      .post(spUrl, {})
       .then(() => {
         const call: SinonSpyCall = requestPromiseStub.getCall(0);
         const options: ISPRequestOptions = call.args[0];
@@ -365,37 +347,33 @@ describe('sp-request: helper call tests - sprequest.post(...)', () => {
         done(err);
       });
   });
-
 });
 
 describe('sp-request: throws an error', () => {
-
   let requestPromiseStub: SinonStub;
   let sprequest: any;
 
   const error: Error = new Error('Uknown error occurred');
 
-
   beforeEach(() => {
-
     mockery.enable({
       warnOnReplace: false,
       warnOnUnregistered: false,
-      useCleanCache: true
+      useCleanCache: true,
     });
 
     const requestDeferred = Promise.reject(error);
 
     requestPromiseStub = sinon.stub().returns(requestDeferred);
 
-    mockery.registerMock('got', { default: requestPromiseStub });
+    mockery.registerMock('ky', { default: requestPromiseStub });
 
     sprequest = require('./../../src/core/SPRequest');
 
     mockery.registerMock('node-sp-auth', {
       getAuth: () => {
         return Promise.resolve({});
-      }
+      },
     });
   });
 
@@ -404,16 +382,19 @@ describe('sp-request: throws an error', () => {
   });
 
   it('should throw an error', (done) => {
-
     const request: ISPRequest = sprequest.create(creds);
 
-    request.get(spUrl, {})
-      .then(() => {
-        //
-      }, (err) => {
-        expect(err).to.equal(error);
-        done();
-      })
+    request
+      .get(spUrl, {})
+      .then(
+        () => {
+          //
+        },
+        (err) => {
+          expect(err).to.equal(error);
+          done();
+        }
+      )
       .catch((err) => {
         done(err);
       });
@@ -421,13 +402,11 @@ describe('sp-request: throws an error', () => {
 });
 
 describe('sp-request: get request digest', () => {
-
   let sprequest: any;
 
   beforeEach(() => {
     sprequest = require('./../../src/core/SPRequest');
   });
-
 
   it('should retrun request digest', (done) => {
     const request: ISPRequest = sprequest.create(creds);
@@ -437,17 +416,18 @@ describe('sp-request: get request digest', () => {
       d: {
         GetContextWebInformation: {
           FormDigestValue: digest,
-          FormDigestTimeoutSeconds: 0
-        }
-      }
+          FormDigestTimeoutSeconds: 0,
+        },
+      },
     };
 
     const requestDeferred = Promise.resolve({
-      body: response
+      body: response,
     });
 
     const postStup: SinonStub = sinon.stub(request, 'post').returns(requestDeferred as any);
-    request.requestDigest(spUrl)
+    request
+      .requestDigest(spUrl)
       .then((digestValue) => {
         const call: SinonSpyCall = postStup.getCall(0);
         const url: string = call.args[0];
@@ -468,7 +448,8 @@ describe('sp-request: get request digest', () => {
     const requestDeferred = Promise.reject(error);
 
     sinon.stub(request, 'post').returns(requestDeferred as any);
-    request.requestDigest(spUrl)
+    request
+      .requestDigest(spUrl)
       .then(() => {
         //
       })
@@ -485,18 +466,19 @@ describe('sp-request: get request digest', () => {
       d: {
         GetContextWebInformation: {
           FormDigestValue: digest,
-          FormDigestTimeoutSeconds: 100
-        }
-      }
+          FormDigestTimeoutSeconds: 100,
+        },
+      },
     };
 
     const requestDeferred = Promise.resolve({
-      body: response
+      body: response,
     });
 
     const postStup: SinonStub = sinon.stub(request, 'post').returns(requestDeferred as any);
 
-    request.requestDigest(spUrl)
+    request
+      .requestDigest(spUrl)
       .then(() => {
         postStup.restore();
         sinon.stub(request, 'post').throws();

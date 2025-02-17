@@ -1,6 +1,7 @@
 {
   "name": "sp-request",
   "version": "3.0.0",
+  "private": true,
   "description": "Simplified SharePoint HTTP client",
   "main": "./lib/src/index.js",
   "typings": "./lib/src/index",
@@ -72,11 +73,11 @@
     "sinon": "^9.0.2",
     "source-map-support": "^0.5.19",
     "ts-node": "^8.10.2",
-    "typescript": "3.9.5"
+    "typescript": "^5.6.3"
   },
   "dependencies": {
     "@types/core-js": "^2.5.3",
-    "got": "10.7.0",
-    "node-sp-auth": "^3.0.0"
+    "ky": "^1.7.2",
+    "node-sp-auth": "git+https://github.com/Coldtap/node-sp-auth#feature/rn-build"
   }
 }

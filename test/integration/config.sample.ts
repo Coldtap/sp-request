@@ -4,7 +4,7 @@ import {
   IOnpremiseFbaCredentials,
   IOnPremiseAddinCredentials,
   IOnlineAddinCredentials,
-  IAdfsUserCredentials
+  IAdfsUserCredentials,
 } from 'node-sp-auth';
 
 export const onlineUrl = '[sharepoint online url]';
@@ -14,24 +14,24 @@ export const onpremFbaEnabledUrl = '[sharepint on premise url with fba auth]';
 
 export const onlineCreds: IUserCredentials = {
   username: '[username]',
-  password: '[password]'
+  password: '[password]',
 };
 
 export const onlineWithAdfsCreds: IUserCredentials = {
   username: '[username]',
-  password: '[password]'
+  password: '[password]',
 };
 
 export const onpremCreds: IOnpremiseUserCredentials = {
   username: '[username]',
   domain: '[domain]',
-  password: '[password]'
+  password: '[password]',
 };
 
 export const onpremFbaCreds: IOnpremiseFbaCredentials = {
   username: '[username]',
   password: '[password]',
-  fba: true
+  fba: true,
 };
 
 export const onpremAddinOnly: IOnPremiseAddinCredentials = {
@@ -39,18 +39,18 @@ export const onpremAddinOnly: IOnPremiseAddinCredentials = {
   issuerId: '[issuerId]',
   realm: '[realm]',
   rsaPrivateKeyPath: '[rsaPrivateKeyPath]',
-  shaThumbprint: '[shaThumbprint]'
+  shaThumbprint: '[shaThumbprint]',
 };
 
 export const onlineAddinOnly: IOnlineAddinCredentials = {
   clientId: '[clientId]',
   clientSecret: '[clientSecret]',
-  realm: '[realm]'
+  realm: '[realm]',
 };
 
 export const adfsCredentials: IAdfsUserCredentials = {
   username: '[username]',
   password: '[password]',
   relyingParty: '[relying party]',
-  adfsUrl: '[adfs url]'
+  adfsUrl: '[adfs url]',
 };

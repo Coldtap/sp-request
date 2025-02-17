@@ -1,8 +1,7 @@
-import {CacheItem} from './CacheItem';
+import { CacheItem } from './CacheItem';
 import * as crypto from 'crypto';
 
 export class Cache {
-
   private _cache: { [key: string]: CacheItem } = {};
 
   public set<T>(key: string, data: T, expiration?: number | Date): void {
