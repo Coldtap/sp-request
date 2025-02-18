@@ -78,6 +78,6 @@
   "dependencies": {
     "@types/core-js": "^2.5.3",
     "ky": "^1.7.2",
-    "node-sp-auth": "git+https://github.com/Coldtap/node-sp-auth#feature/rn-build"
+    "node-sp-auth": "github:Coldtap/node-sp-auth#feature/rn-build"
   }
 }
