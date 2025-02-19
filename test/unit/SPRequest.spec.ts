@@ -1,14 +1,11 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { SinonStub, SinonSpyCall } from 'sinon';
-import * as mockery from 'mockery';
-import * as spauth from 'node-sp-auth';
-
+import rewiremock from 'rewiremock';
 import { ISPRequest, ISPRequestOptions } from '../../src/core/types';
 
 const spUrl = 'https://your_sp_api_endpoint';
-
-const creds: spauth.IOnpremiseUserCredentials = {
+const creds = {
   username: 'user',
   password: 'pass',
   domain: 'sp',
@@ -21,28 +18,20 @@ describe('sp-request: direct call tests - sprequest(...)', () => {
   let sprequest: any;
 
   beforeEach(() => {
-    mockery.enable({
-      warnOnReplace: false,
-      warnOnUnregistered: false,
-      useCleanCache: true,
-    });
-
     const requestDeferred = Promise.resolve({ statusCode: 200 });
-
     requestPromiseStub = sinon.stub().returns(requestDeferred);
 
-    mockery.registerMock('ky', { default: requestPromiseStub });
-    mockery.registerMock('node-sp-auth', {
-      getAuth: () => {
-        return Promise.resolve({});
-      },
+    rewiremock('ky').with({ default: requestPromiseStub });
+    rewiremock('node-sp-auth').with({
+      getAuth: () => Promise.resolve({}),
     });
 
+    rewiremock.enable();
     sprequest = require('./../../src/core/SPRequest');
   });
 
   afterEach(() => {
-    mockery.disable();
+    rewiremock.disable();
   });
 
   it('should call got', (done) => {
@@ -174,29 +163,20 @@ describe('sp-request: helper call tests - sprequest.get(...)', () => {
   let sprequest: any;
 
   beforeEach(() => {
-    mockery.enable({
-      warnOnReplace: false,
-      warnOnUnregistered: false,
-      useCleanCache: true,
-    });
-
     const requestDeferred = Promise.resolve({ statusCode: 200 });
-
     requestPromiseStub = sinon.stub().returns(requestDeferred);
 
-    mockery.registerMock('ky', { default: requestPromiseStub });
-
-    sprequest = require('./../../src/core/SPRequest');
-
-    mockery.registerMock('node-sp-auth', {
-      getAuth: () => {
-        return Promise.resolve({});
-      },
+    rewiremock('ky').with({ default: requestPromiseStub });
+    rewiremock('node-sp-auth').with({
+      getAuth: () => Promise.resolve({}),
     });
+
+    rewiremock.enable();
+    sprequest = require('./../../src/core/SPRequest');
   });
 
   afterEach(() => {
-    mockery.disable();
+    rewiremock.disable();
   });
 
   it('should call got with method "GET" when called with string param', (done) => {
@@ -264,29 +244,20 @@ describe('sp-request: helper call tests - sprequest.post(...)', () => {
   let sprequest: any;
 
   beforeEach(() => {
-    mockery.enable({
-      warnOnReplace: false,
-      warnOnUnregistered: false,
-      useCleanCache: true,
-    });
-
     const requestDeferred = Promise.resolve({ statusCode: 200 });
-
     requestPromiseStub = sinon.stub().returns(requestDeferred);
 
-    mockery.registerMock('ky', { default: requestPromiseStub });
-
-    sprequest = require('./../../src/core/SPRequest');
-
-    mockery.registerMock('node-sp-auth', {
-      getAuth: () => {
-        return Promise.resolve({});
-      },
+    rewiremock('ky').with({ default: requestPromiseStub });
+    rewiremock('node-sp-auth').with({
+      getAuth: () => Promise.resolve({}),
     });
+
+    rewiremock.enable();
+    sprequest = require('./../../src/core/SPRequest');
   });
 
   afterEach(() => {
-    mockery.disable();
+    rewiremock.disable();
   });
 
   it('should call got with method "POST" when called with string param', (done) => {
@@ -356,29 +327,20 @@ describe('sp-request: throws an error', () => {
   const error: Error = new Error('Uknown error occurred');
 
   beforeEach(() => {
-    mockery.enable({
-      warnOnReplace: false,
-      warnOnUnregistered: false,
-      useCleanCache: true,
-    });
-
     const requestDeferred = Promise.reject(error);
-
     requestPromiseStub = sinon.stub().returns(requestDeferred);
 
-    mockery.registerMock('ky', { default: requestPromiseStub });
-
-    sprequest = require('./../../src/core/SPRequest');
-
-    mockery.registerMock('node-sp-auth', {
-      getAuth: () => {
-        return Promise.resolve({});
-      },
+    rewiremock('ky').with({ default: requestPromiseStub });
+    rewiremock('node-sp-auth').with({
+      getAuth: () => Promise.resolve({}),
     });
+
+    rewiremock.enable();
+    sprequest = require('./../../src/core/SPRequest');
   });
 
   afterEach(() => {
-    mockery.disable();
+    rewiremock.disable();
   });
 
   it('should throw an error', (done) => {
