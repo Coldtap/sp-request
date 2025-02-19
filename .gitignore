@@ -2,8 +2,6 @@ demo
 node_modules
 reports
 test/integration/config.ts
-*.js
-*.js.map
 !gulpfile.js
 !build/**
 !.eslintrc.js
