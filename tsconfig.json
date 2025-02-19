@@ -19,7 +19,6 @@
       "chai",
       "mocha",
       "sinon",
-      "mockery",
       "core-js"
     ]
   },
